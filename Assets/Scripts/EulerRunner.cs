@@ -10,7 +10,7 @@ using System.Xml;
 public class EulerRunner : MonoBehaviour
 {
     PhysicalScene scene;
-    ExplicitEuler explicitEuler = new ExplicitEuler();
+    ExplicitEulerIntegrator explicitEuler = new ExplicitEulerIntegrator();
 
     void Awake()
     {

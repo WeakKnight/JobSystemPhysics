@@ -85,7 +85,7 @@ public struct UpdateJob : IJobParallelForTransform
     }
 }
 
-public class ExplicitEuler
+public class ExplicitEulerIntegrator
 {
     // By Order
     SimpleGravityGradiantJob m_GravityGradiantJob;
