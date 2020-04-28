@@ -7,7 +7,7 @@ using Unity.Collections;
 using System.Xml;
 
 [RequireComponent(typeof(PhysicalScene))]
-public class EulerRunner : MonoBehaviour
+public class Runner : MonoBehaviour
 {
     PhysicalScene scene;
     ExplicitEulerIntegrator explicitEuler = new ExplicitEulerIntegrator();
