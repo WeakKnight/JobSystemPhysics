@@ -268,6 +268,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1480282754}
   - component: {fileID: 1480282753}
+  - component: {fileID: 1480282755}
   m_Layer: 0
   m_Name: PhysicsManager
   m_TagString: Untagged
@@ -287,9 +288,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a695f323cd83e642a96f03d561cd161, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  scene: {fileID: 4900000, guid: c0ed6841e9180b9428ff70535bae5933, type: 3}
-  particlePrefab: {fileID: 6776132239272326120, guid: e861532025935534692b3940e943a87a, type: 3}
-  linePrefab: {fileID: 8205391774047795679, guid: 041b1a0e1d3a53140b6feeb4ab85f536, type: 3}
 --- !u!4 &1480282754
 Transform:
   m_ObjectHideFlags: 0
@@ -304,3 +302,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1480282755
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1480282752}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 342b7f6fb015d3f449c3dbc46a887715, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneFile: {fileID: 4900000, guid: c0ed6841e9180b9428ff70535bae5933, type: 3}
+  particlePrefab: {fileID: 6776132239272326120, guid: e861532025935534692b3940e943a87a, type: 3}
+  linePrefab: {fileID: 8205391774047795679, guid: 041b1a0e1d3a53140b6feeb4ab85f536, type: 3}

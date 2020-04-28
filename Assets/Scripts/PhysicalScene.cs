@@ -5,120 +5,38 @@ using Unity.Jobs;
 using UnityEngine.Jobs;
 using Unity.Collections;
 using System.Xml;
-using System.Xml.Serialization;
 
-public struct GravityGradiantJob : IJobParallelFor
+public class PhysicalScene : MonoBehaviour
 {
-    [ReadOnly]
-    public NativeArray<float> mass;
-    [ReadOnly]
-    public NativeArray<bool> fixes;
-
-    public NativeArray<Vector3> gradiant;
-    public Vector3 gravity;
-
-    public void Execute(int index)
-    {
-        if(fixes[index])
-        {
-            return;
-        }
-
-        gradiant[index] -= (mass[index] * gravity);
-    }
-}
-
-public struct PositionJob : IJobParallelFor
-{
-    [ReadOnly]
-    public NativeArray<Vector3> velocity;
-    [ReadOnly]
-    public NativeArray<bool> fixes;
-
-    public NativeArray<Vector3> position;
-
-    public float deltaTime;
-
-    public void Execute(int index)
-    {
-        if (fixes[index])
-        {
-            return;
-        }
-
-        position[index] = position[index] + velocity[index] * deltaTime;
-    }
-}
-
-public struct VelocityJob : IJobParallelFor
-{
-    [ReadOnly]
-    public NativeArray<Vector3> gradiant;
-    [ReadOnly]
-    public NativeArray<float> mass;
-    [ReadOnly]
-    public NativeArray<bool> fixes;
-
-    public NativeArray<Vector3> velocity;
-    public float deltaTime;
-
-    public void Execute(int index)
-    {
-        if (fixes[index])
-        {
-            return;
-        }
-
-        Vector3 force = -gradiant[index];
-        velocity[index] = velocity[index] + deltaTime * force / mass[index];
-    }
-}
-
-public struct UpdateJob : IJobParallelForTransform
-{
-    [ReadOnly]
-    public NativeArray<Vector3> position;
-    public NativeArray<Vector3> gradiant;
-    public void Execute(int index, TransformAccess transform)
-    {
-        transform.position = position[index];
-        gradiant[index] = new Vector3(0.0f, 0.0f, 0.0f);
-    }
-}
-
-public class ExplicitEuler : MonoBehaviour
-{
-    public TextAsset scene;
+    public TextAsset sceneFile;
     public GameObject particlePrefab;
     public GameObject linePrefab;
 
-    int objectCount = 0;
+    [System.NonSerialized]
+    public int objectCount = 0;
 
-    NativeArray<Vector3> m_Velocities;
-    NativeArray<Vector3> m_Positions;
-    NativeArray<bool> m_fixes;
-    NativeArray<float> m_masses;
-    NativeArray<Vector3> m_gradiants;
-    TransformAccessArray m_TransformsAccessArray;
+    public NativeArray<Vector3> m_Velocities;
+    public NativeArray<Vector3> m_Positions;
+    public NativeArray<bool> m_fixes;
+    public NativeArray<float> m_masses;
+    public NativeArray<Vector3> m_gradiants;
+    public TransformAccessArray m_TransformsAccessArray;
+    [System.NonSerialized]
+    public Vector3 m_Gravity;
+    [System.NonSerialized]
+    public List<Transform> particleList = new List<Transform>();
+    [System.NonSerialized]
+    public List<LineRenderer> edgeList = new List<LineRenderer>();
+    [System.NonSerialized]
+    public List<Vector2Int> edgeIndexList = new List<Vector2Int>();
 
-    Vector3 m_Gravity;
+    public void Load()
+    {
+        Load(sceneFile);
+    }
 
-    // By Order
-    GravityGradiantJob m_GravityGradiantJob;
-    PositionJob m_PositionJob;
-    VelocityJob m_VelocityJob;
-    UpdateJob m_UpdateJob;
-
-    JobHandle m_GravityGradiantJobHandle;
-    JobHandle m_PositionJobHandle;
-    JobHandle m_VelocityJobHandle;
-    JobHandle m_UpdateJobHandle;
-
-    List<Transform> particleList = new List<Transform>();
-    List<LineRenderer> edgeList = new List<LineRenderer>();
-    List<Vector2Int> edgeIndexList = new List<Vector2Int>();
-
-    void Awake()
+    // Start is called before the first frame update
+    public void Load(TextAsset scene)
     {
         XmlDocument xmlDoc = new XmlDocument();
         xmlDoc.LoadXml(scene.text);
@@ -143,13 +61,13 @@ public class ExplicitEuler : MonoBehaviour
 
             float radius = 1.0f;
             XmlAttribute radiusAttr = particle.Attributes["radius"];
-            if(radiusAttr != null)
+            if (radiusAttr != null)
             {
                 radius = float.Parse(radiusAttr.InnerText);
             }
 
             bool isFixed = int.Parse(particle.Attributes["fixed"]?.InnerText) == 1;
-            
+
             m_Positions[i] = new Vector3(px, py, 0.0f);
             m_Velocities[i] = new Vector3(vx, vy, 0.0f);
             m_fixes[i] = isFixed;
@@ -163,7 +81,7 @@ public class ExplicitEuler : MonoBehaviour
         }
 
         XmlNodeList gravityNodeList = xmlDoc.GetElementsByTagName("simplegravity");
-        if(gravityNodeList.Count > 0)
+        if (gravityNodeList.Count > 0)
         {
             XmlNode gravityNode = gravityNodeList[0];
             float gx = float.Parse(gravityNode.Attributes["fx"]?.InnerText);
@@ -171,11 +89,11 @@ public class ExplicitEuler : MonoBehaviour
 
             m_Gravity = new Vector3(gx, gy, 0.0f);
         }
-      
+
         m_TransformsAccessArray = new TransformAccessArray(particleList.ToArray());
 
         XmlNodeList particleColors = xmlDoc.GetElementsByTagName("particlecolor");
-        foreach(XmlNode particleColor in particleColors)
+        foreach (XmlNode particleColor in particleColors)
         {
             float r = float.Parse(particleColor.Attributes["r"]?.InnerText);
             float g = float.Parse(particleColor.Attributes["g"]?.InnerText);
@@ -206,7 +124,7 @@ public class ExplicitEuler : MonoBehaviour
         }
 
         XmlNodeList backgroundColorNodes = xmlDoc.GetElementsByTagName("backgroundcolor");
-        if(backgroundColorNodes.Count > 0)
+        if (backgroundColorNodes.Count > 0)
         {
             XmlNode backgroundColorNode = backgroundColorNodes[0];
             float r = float.Parse(backgroundColorNode.Attributes["r"]?.InnerText);
@@ -217,11 +135,11 @@ public class ExplicitEuler : MonoBehaviour
         }
 
         XmlNodeList edges = xmlDoc.GetElementsByTagName("edge");
-        foreach(XmlNode edge in edges)
+        foreach (XmlNode edge in edges)
         {
             int i = int.Parse(edge.Attributes["i"]?.InnerText);
             int j = int.Parse(edge.Attributes["j"]?.InnerText);
-            
+
             float radius = 1.0f;
             XmlAttribute radiusAttr = edge.Attributes["radius"];
             if (radiusAttr != null)
@@ -241,72 +159,7 @@ public class ExplicitEuler : MonoBehaviour
         }
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-
-    // Update is called once per frame
-    void Update()
-    {
-        m_GravityGradiantJob = new GravityGradiantJob
-        {
-            gravity = m_Gravity,
-            gradiant = m_gradiants,
-            mass = m_masses,
-            fixes = m_fixes,
-        };
-
-        m_PositionJob = new PositionJob
-        {
-            deltaTime = Time.deltaTime,
-            velocity = m_Velocities,
-            fixes = m_fixes,
-            position = m_Positions,
-        };
-
-        m_VelocityJob = new VelocityJob
-        {
-            gradiant = m_gradiants,
-            mass = m_masses,
-            fixes = m_fixes,
-            velocity = m_Velocities,
-            deltaTime = Time.deltaTime,
-        };
-
-        m_UpdateJob = new UpdateJob
-        {
-            position = m_Positions,
-            gradiant = m_gradiants,
-        };
-
-        m_GravityGradiantJobHandle = m_GravityGradiantJob.Schedule(objectCount, 64);
-        
-        m_PositionJobHandle = m_PositionJob.Schedule(objectCount, 64, m_GravityGradiantJobHandle);
-        
-        m_VelocityJobHandle = m_VelocityJob.Schedule(objectCount, 64, m_PositionJobHandle);
-
-        m_UpdateJobHandle = m_UpdateJob.Schedule(m_TransformsAccessArray, m_VelocityJobHandle);
-
-        m_UpdateJobHandle.Complete();
-
-        for(int i = 0; i < edgeList.Count; i++)
-        {
-            LineRenderer lineRenderer = edgeList[i];
-            Vector2Int vertexIndex = edgeIndexList[i];
-
-            lineRenderer.SetPosition(0, particleList[vertexIndex.x].position);
-            lineRenderer.SetPosition(1, particleList[vertexIndex.y].position);
-        }
-    }
-
-    void LateUpdate()
-    {
-    }
-
-    void OnDestroy()
+    public void Dispose()
     {
         m_Velocities.Dispose();
         m_Positions.Dispose();
@@ -314,5 +167,17 @@ public class ExplicitEuler : MonoBehaviour
         m_fixes.Dispose();
         m_masses.Dispose();
         m_gradiants.Dispose();
+    }
+
+    public void Frame()
+    {
+        for (int i = 0; i < edgeList.Count; i++)
+        {
+            LineRenderer lineRenderer = edgeList[i];
+            Vector2Int vertexIndex = edgeIndexList[i];
+
+            lineRenderer.SetPosition(0, particleList[vertexIndex.x].position);
+            lineRenderer.SetPosition(1, particleList[vertexIndex.y].position);
+        }
     }
 }
