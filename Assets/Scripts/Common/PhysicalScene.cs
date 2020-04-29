@@ -16,6 +16,8 @@ public class PhysicalScene : MonoBehaviour
     public string integratorType = "";
     [System.NonSerialized]
     public int objectCount = 0;
+    [System.NonSerialized]
+    public float dt = 0;
 
     public NativeArray<Vector3> m_Velocities;
     public NativeArray<Vector3> m_Positions;
@@ -25,6 +27,8 @@ public class PhysicalScene : MonoBehaviour
     public TransformAccessArray m_TransformsAccessArray;
     // i, j, G
     public NativeArray<Vector3> gravitationalforces;
+    // edge, k, l0. b
+    public NativeArray<Vector4> springForces;
 
     [System.NonSerialized]
     public Vector3 m_Gravity;
@@ -64,7 +68,7 @@ public class PhysicalScene : MonoBehaviour
 
             float mass = float.Parse(particle.Attributes["m"]?.InnerText);
 
-            float radius = 1.0f;
+            float radius = 0.5f;
             XmlAttribute radiusAttr = particle.Attributes["radius"];
             if (radiusAttr != null)
             {
@@ -145,7 +149,7 @@ public class PhysicalScene : MonoBehaviour
             int i = int.Parse(edge.Attributes["i"]?.InnerText);
             int j = int.Parse(edge.Attributes["j"]?.InnerText);
 
-            float radius = 1.0f;
+            float radius = 0.2f;
             XmlAttribute radiusAttr = edge.Attributes["radius"];
             if (radiusAttr != null)
             {
@@ -178,6 +182,26 @@ public class PhysicalScene : MonoBehaviour
 
         gravitationalforces = new NativeArray<Vector3>(tempG.ToArray(), Allocator.Persistent);
 
+        // Spring Forces
+        XmlNodeList springforceNodes = xmlDoc.GetElementsByTagName("springforce");
+
+        List<Vector4> tempS = new List<Vector4>();
+        foreach(XmlNode springforceNode in springforceNodes)
+        {
+            int edgeIndex = int.Parse(springforceNode.Attributes["edge"]?.InnerText);
+            float k = float.Parse(springforceNode.Attributes["k"]?.InnerText);
+            float l0 = float.Parse(springforceNode.Attributes["l0"]?.InnerText);
+            float b = 0.0f;
+            XmlAttribute bAttr = springforceNode.Attributes["b"];
+            if(bAttr != null)
+            {
+                b = float.Parse(bAttr.InnerText);
+            }
+
+            tempS.Add(new Vector4(edgeIndex, k, l0, b));
+        }
+        springForces = new NativeArray<Vector4>(tempS.ToArray(), Allocator.Persistent);
+
         // Description
         XmlNodeList descriptions = xmlDoc.GetElementsByTagName("description");
         foreach(XmlNode description in descriptions)
@@ -190,7 +214,7 @@ public class PhysicalScene : MonoBehaviour
         if(integrators.Count > 0)
         {
             XmlNode integrator = integrators[0];
-            float dt = float.Parse(integrator.Attributes["dt"]?.InnerText);
+            dt = float.Parse(integrator.Attributes["dt"]?.InnerText);
             integratorType = integrator.Attributes["type"]?.InnerText;
 
             Debug.Log("Target Delta Time Is " + dt.ToString());
@@ -208,6 +232,7 @@ public class PhysicalScene : MonoBehaviour
         m_masses.Dispose();
         m_gradiants.Dispose();
         gravitationalforces.Dispose();
+        springForces.Dispose();
     }
 
     public void Frame()
