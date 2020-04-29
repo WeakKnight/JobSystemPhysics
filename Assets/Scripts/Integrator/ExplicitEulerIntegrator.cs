@@ -1,12 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using Unity.Jobs;
 using UnityEngine.Jobs;
 using Unity.Collections;
-using System.Xml;
 
-public class ExplicitEulerIntegrator
+public class ExplicitEulerIntegrator: IIntegrator
 {
     // By Order
     SimpleGravityJob m_GravityGradiantJob;

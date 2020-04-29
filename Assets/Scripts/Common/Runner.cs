@@ -10,12 +10,25 @@ using System.Xml;
 public class Runner : MonoBehaviour
 {
     PhysicalScene scene;
-    ExplicitEulerIntegrator explicitEuler = new ExplicitEulerIntegrator();
+    IIntegrator integrator;
 
     void Awake()
     {
         scene = GetComponent<PhysicalScene>();
         scene.Load();
+
+        if (scene.integratorType == "explicit-euler")
+        {
+            integrator = new ExplicitEulerIntegrator();
+        }
+        else if (scene.integratorType == "symplectic-euler")
+        {
+            integrator = new SymplecticEulerIntegrator();
+        }
+        else
+        {
+            Debug.Assert(false, "Can Not Find Any Suitable Integrator.");
+        }
     }
 
     void OnDestroy()
@@ -26,7 +39,7 @@ public class Runner : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        explicitEuler.StepOneFrame(scene);
+        integrator.StepOneFrame(scene);
         scene.Frame();
     }
 

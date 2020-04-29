@@ -13,6 +13,8 @@ public class PhysicalScene : MonoBehaviour
     public GameObject linePrefab;
 
     [System.NonSerialized]
+    public string integratorType = "";
+    [System.NonSerialized]
     public int objectCount = 0;
 
     public NativeArray<Vector3> m_Velocities;
@@ -156,6 +158,19 @@ public class PhysicalScene : MonoBehaviour
 
             edgeList.Add(lineRenderer);
             edgeIndexList.Add(new Vector2Int(i, j));
+        }
+
+        // Frame Rate
+        XmlNodeList integrators = xmlDoc.GetElementsByTagName("integrator");
+        if(integrators.Count > 0)
+        {
+            XmlNode integrator = integrators[0];
+            float dt = float.Parse(integrator.Attributes["dt"]?.InnerText);
+            integratorType = integrator.Attributes["type"]?.InnerText;
+
+            Debug.Log("Target Delta Time Is " + dt.ToString());
+            Debug.Log("Integrator Type Is " + integratorType);
+            Application.targetFrameRate = (int)(1.0f / dt);
         }
     }
 

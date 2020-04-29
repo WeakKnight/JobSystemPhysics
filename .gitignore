@@ -10,6 +10,12 @@
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
 
+Packages/Microsoft.CodeAnalysis.FxCopAnalyzers.3.0.0/
+Packages/Microsoft.CodeAnalysis.VersionCheckAnalyzer.3.0.0/
+Packages/Microsoft.CodeQuality.Analyzers.3.0.0/
+Packages/Microsoft.NetCore.Analyzers.3.0.0/
+Packages/Microsoft.NetFramework.Analyzers.3.0.0/
+
 # MemoryCaptures can get excessive in size.
 # They also could contain extremely sensitive data
 /[Mm]emoryCaptures/
@@ -68,3 +74,5 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+.editorconfig
+packages.config
