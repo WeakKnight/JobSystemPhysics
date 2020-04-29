@@ -16,7 +16,7 @@ public struct SpringForceJob
 
     public NativeArray<Vector3> gradiant;
 
-    public void Execute()
+    public float Execute()
     {
         float springPotentialEnergy = 0.0f;
         for (int index = 0; index < springForces.Length; index++)
@@ -45,5 +45,7 @@ public struct SpringForceJob
             gradiant[i] += (-Vector3.Dot(-b * n, vi - vj) * n);
             gradiant[j] += (-Vector3.Dot(b * n, vi - vj) * n);
         }
+
+        return springPotentialEnergy;
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using Unity.Jobs;
 using UnityEngine.Jobs;
 using Unity.Collections;
@@ -9,6 +10,7 @@ using System.Xml;
 [RequireComponent(typeof(PhysicalScene))]
 public class Runner : MonoBehaviour
 {
+    public Text txtTotalEnergy;
     PhysicalScene scene;
     IIntegrator integrator;
 
@@ -41,6 +43,7 @@ public class Runner : MonoBehaviour
     {
         integrator.StepOneFrame(scene);
         scene.Frame();
+        txtTotalEnergy.text = scene.totalEnergy.ToString();
     }
 
 }

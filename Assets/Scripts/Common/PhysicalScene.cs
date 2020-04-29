@@ -18,6 +18,8 @@ public class PhysicalScene : MonoBehaviour
     public int objectCount = 0;
     [System.NonSerialized]
     public float dt = 0;
+    [System.NonSerialized]
+    public float totalEnergy = 0.0f;
 
     public NativeArray<Vector3> m_Velocities;
     public NativeArray<Vector3> m_Positions;

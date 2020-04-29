@@ -14,7 +14,7 @@ public struct GravitationalForceJob
     public NativeArray<Vector3> gradiant;
 
 
-    public void Execute()
+    public float Execute()
     {
         float gravityPotentialEnergy = 0.0f;
         for (int index = 0; index < gravitationalforces.Length; index++)
@@ -35,5 +35,7 @@ public struct GravitationalForceJob
             gradiant[i] += (forceVal * n);
             gradiant[j] += (-forceVal * n);
         }
+
+        return gravityPotentialEnergy;
     }
 }

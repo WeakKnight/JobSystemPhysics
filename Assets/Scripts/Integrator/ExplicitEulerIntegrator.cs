@@ -12,6 +12,7 @@ public class ExplicitEulerIntegrator: IIntegrator
     GravitationalForceJob m_GravitationalForceJob;
     SpringForceJob m_SpringForceJob;
     DragDampingJob m_DragDampingJob;
+    PotentialEnergyJob m_PotentialEnergyJob;
 
     JobHandle m_DragDampingJobHandle;
     JobHandle m_GravityGradiantJobHandle;
@@ -68,9 +69,19 @@ public class ExplicitEulerIntegrator: IIntegrator
             gradiant = scene.m_gradiants,
         };
 
-        m_SpringForceJob.Execute();
+        m_PotentialEnergyJob = new PotentialEnergyJob
+        {
+            mass = scene.m_masses,
+            velocity = scene.m_Velocities,
+            position = scene.m_Positions,
+            gravity = scene.m_Gravity,
+        };
 
-        m_GravitationalForceJob.Execute();
+        float springEnergy = m_SpringForceJob.Execute();
+
+        float gravitationalEnergy = m_GravitationalForceJob.Execute();
+
+        scene.totalEnergy = m_PotentialEnergyJob.Execute(springEnergy, gravitationalEnergy);
 
         m_DragDampingJobHandle = m_DragDampingJob.Schedule(scene.objectCount, 64);
 
