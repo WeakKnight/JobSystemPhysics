@@ -23,6 +23,9 @@ public class PhysicalScene : MonoBehaviour
     public NativeArray<float> m_masses;
     public NativeArray<Vector3> m_gradiants;
     public TransformAccessArray m_TransformsAccessArray;
+    // i, j, G
+    public NativeArray<Vector3> gravitationalforces;
+
     [System.NonSerialized]
     public Vector3 m_Gravity;
     [System.NonSerialized]
@@ -160,6 +163,28 @@ public class PhysicalScene : MonoBehaviour
             edgeIndexList.Add(new Vector2Int(i, j));
         }
 
+        // Gravitational Forces
+        XmlNodeList gravitationalNodes = xmlDoc.GetElementsByTagName("gravitationalforce");
+
+        List<Vector3> tempG = new List<Vector3>();
+        foreach(XmlNode gravitationalNode in gravitationalNodes)
+        {
+            float G = float.Parse(gravitationalNode.Attributes["G"]?.InnerText);
+            int i = int.Parse(gravitationalNode.Attributes["i"]?.InnerText);
+            int j = int.Parse(gravitationalNode.Attributes["j"]?.InnerText);
+
+            tempG.Add(new Vector3(i, j, G));
+        }
+
+        gravitationalforces = new NativeArray<Vector3>(tempG.ToArray(), Allocator.Persistent);
+
+        // Description
+        XmlNodeList descriptions = xmlDoc.GetElementsByTagName("description");
+        foreach(XmlNode description in descriptions)
+        {
+            Debug.Log(description.Attributes["text"]?.InnerText);
+        }
+
         // Frame Rate
         XmlNodeList integrators = xmlDoc.GetElementsByTagName("integrator");
         if(integrators.Count > 0)
@@ -182,6 +207,7 @@ public class PhysicalScene : MonoBehaviour
         m_fixes.Dispose();
         m_masses.Dispose();
         m_gradiants.Dispose();
+        gravitationalforces.Dispose();
     }
 
     public void Frame()

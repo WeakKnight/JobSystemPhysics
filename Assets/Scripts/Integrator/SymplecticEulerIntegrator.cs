@@ -9,6 +9,7 @@ public class SymplecticEulerIntegrator : IIntegrator
     SimpleGravityJob m_GravityGradiantJob;
     SymplecticEulerJob m_SymplecticEulerJob;
     UpdateJob m_UpdateJob;
+    GravitationalForceJob m_GravitationalForceJob;
 
     JobHandle m_GravityGradiantJobHandle;
     JobHandle m_SymplecticEulerJobHandle;
@@ -16,6 +17,14 @@ public class SymplecticEulerIntegrator : IIntegrator
 
     public void StepOneFrame(PhysicalScene scene)
     {
+        m_GravitationalForceJob = new GravitationalForceJob
+        {
+            mass = scene.m_masses,
+            position = scene.m_Positions,
+            gradiant = scene.m_gradiants,
+            gravitationalforces = scene.gravitationalforces
+        };
+
         m_GravityGradiantJob = new SimpleGravityJob
         {
             gravity = scene.m_Gravity,
@@ -39,6 +48,8 @@ public class SymplecticEulerIntegrator : IIntegrator
             position = scene.m_Positions,
             gradiant = scene.m_gradiants,
         };
+
+        m_GravitationalForceJob.Execute();
 
         m_GravityGradiantJobHandle = m_GravityGradiantJob.Schedule(scene.objectCount, 64);
 

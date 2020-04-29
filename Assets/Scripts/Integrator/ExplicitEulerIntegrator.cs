@@ -9,6 +9,7 @@ public class ExplicitEulerIntegrator: IIntegrator
     SimpleGravityJob m_GravityGradiantJob;
     ExplicitEulerJob m_ExplicitEulerJob;
     UpdateJob m_UpdateJob;
+    GravitationalForceJob m_GravitationalForceJob;
 
     JobHandle m_GravityGradiantJobHandle;
     JobHandle m_ExplicitEulerJobHandle;
@@ -16,6 +17,14 @@ public class ExplicitEulerIntegrator: IIntegrator
 
     public void StepOneFrame(PhysicalScene scene)
     {
+        m_GravitationalForceJob = new GravitationalForceJob
+        {
+            mass = scene.m_masses,
+            position = scene.m_Positions,
+            gradiant = scene.m_gradiants,
+            gravitationalforces = scene.gravitationalforces
+        };
+
         m_GravityGradiantJob = new SimpleGravityJob
         {
             gravity = scene.m_Gravity,
@@ -39,6 +48,8 @@ public class ExplicitEulerIntegrator: IIntegrator
             position = scene.m_Positions,
             gradiant = scene.m_gradiants,
         };
+
+        m_GravitationalForceJob.Execute();
 
         m_GravityGradiantJobHandle = m_GravityGradiantJob.Schedule(scene.objectCount, 64);
 

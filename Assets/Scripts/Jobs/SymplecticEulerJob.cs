@@ -23,9 +23,8 @@ public struct SymplecticEulerJob : IJobParallelFor
             return;
         }
 
-        position[index] = position[index] + velocity[index] * deltaTime;
-
         Vector3 force = -gradiant[index];
-        velocity[index] = velocity[index] + deltaTime * force / mass[index];
+        velocity[index] = velocity[index] + (deltaTime * force / mass[index]);
+        position[index] = position[index] + (velocity[index] * deltaTime);
     }
 }
