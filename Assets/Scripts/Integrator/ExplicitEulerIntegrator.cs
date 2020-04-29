@@ -11,13 +11,22 @@ public class ExplicitEulerIntegrator: IIntegrator
     UpdateJob m_UpdateJob;
     GravitationalForceJob m_GravitationalForceJob;
     SpringForceJob m_SpringForceJob;
+    DragDampingJob m_DragDampingJob;
 
+    JobHandle m_DragDampingJobHandle;
     JobHandle m_GravityGradiantJobHandle;
     JobHandle m_ExplicitEulerJobHandle;
     JobHandle m_UpdateJobHandle;
 
     public void StepOneFrame(PhysicalScene scene)
     {
+        m_DragDampingJob = new DragDampingJob
+        {
+            b = scene.m_DragDamping,
+            velocity = scene.m_Velocities,
+            gradiant = scene.m_gradiants,
+        };
+
         m_SpringForceJob = new SpringForceJob
         {
             position = scene.m_Positions,
@@ -63,7 +72,9 @@ public class ExplicitEulerIntegrator: IIntegrator
 
         m_GravitationalForceJob.Execute();
 
-        m_GravityGradiantJobHandle = m_GravityGradiantJob.Schedule(scene.objectCount, 64);
+        m_DragDampingJobHandle = m_DragDampingJob.Schedule(scene.objectCount, 64);
+
+        m_GravityGradiantJobHandle = m_GravityGradiantJob.Schedule(scene.objectCount, 64, m_DragDampingJobHandle);
 
         m_ExplicitEulerJobHandle = m_ExplicitEulerJob.Schedule(scene.objectCount, 64, m_GravityGradiantJobHandle);
 

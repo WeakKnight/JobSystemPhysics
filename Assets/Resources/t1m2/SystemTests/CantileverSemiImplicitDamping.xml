@@ -34,7 +34,7 @@
   <particle m="1.0" px="13.0" py="-1.0" vx="0.0" vy="0.0" fixed="0"/>
   <particle m="1.0" px="14.0" py="0.0" vx="0.0" vy="0.0" fixed="0"/>
   <particle m="1.0" px="14.0" py="-1.0" vx="0.0" vy="0.0" fixed="0"/>
-  <simplegravity fx="0.0" fy="-2.0"/>
+  <simplegravity fx="0.0" fy="-8.0"/>
   <!-- Vertical edges -->
   <edge i="0" j="1"/>
   <edge i="2" j="3"/>
@@ -187,4 +187,5 @@
   <springforce edge="68" k="2000.0" l0="1.41421356237" b="10.0"/>
   <springforce edge="69" k="2000.0" l0="1.41421356237" b="10.0"/>
   <springforce edge="70" k="2000.0" l0="1.41421356237" b="10.0"/>
+  <dragdamping b="1.0"/>
 </scene>

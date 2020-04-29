@@ -33,6 +33,8 @@ public class PhysicalScene : MonoBehaviour
     [System.NonSerialized]
     public Vector3 m_Gravity;
     [System.NonSerialized]
+    public float m_DragDamping = 0.0f;
+    [System.NonSerialized]
     public List<Transform> particleList = new List<Transform>();
     [System.NonSerialized]
     public List<LineRenderer> edgeList = new List<LineRenderer>();
@@ -201,6 +203,13 @@ public class PhysicalScene : MonoBehaviour
             tempS.Add(new Vector4(edgeIndex, k, l0, b));
         }
         springForces = new NativeArray<Vector4>(tempS.ToArray(), Allocator.Persistent);
+
+        // Drag Damping
+        XmlNodeList dragDampingNodes = xmlDoc.GetElementsByTagName("dragdamping");
+        if(dragDampingNodes.Count > 0)
+        {
+            m_DragDamping = float.Parse(dragDampingNodes[0].Attributes["b"].InnerText);
+        }
 
         // Description
         XmlNodeList descriptions = xmlDoc.GetElementsByTagName("description");
