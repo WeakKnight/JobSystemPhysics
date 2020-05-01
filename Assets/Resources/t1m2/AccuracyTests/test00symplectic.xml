@@ -3,7 +3,7 @@
     <scenetag tag="AccuracyTestScene"/>
 
     <duration time="500.0"/>
-    <integrator type="symplectic-euler" dt="0.1"/>
+    <integrator type="symplectic-euler" dt="0.005"/>
     <maxsimfreq max="500.0"/>
     
     <!-- The sun -->

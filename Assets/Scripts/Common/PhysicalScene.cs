@@ -72,7 +72,7 @@ public class PhysicalScene : MonoBehaviour
 
             float mass = float.Parse(particle.Attributes["m"]?.InnerText);
 
-            float radius = 0.5f;
+            float radius = 0.2f;
             XmlAttribute radiusAttr = particle.Attributes["radius"];
             if (radiusAttr != null)
             {
@@ -153,7 +153,7 @@ public class PhysicalScene : MonoBehaviour
             int i = int.Parse(edge.Attributes["i"]?.InnerText);
             int j = int.Parse(edge.Attributes["j"]?.InnerText);
 
-            float radius = 0.2f;
+            float radius = 0.1f;
             XmlAttribute radiusAttr = edge.Attributes["radius"];
             if (radiusAttr != null)
             {
